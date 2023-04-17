@@ -3,6 +3,8 @@
 use App\Http\Controllers\Dashboard\ParametrosController;
 use App\Http\Controllers\Dashboard\SearchController;
 use App\Http\Controllers\Dashboard\UsersController;
+use App\Http\Controllers\Dashboard\PacientesController;
+use App\Http\Controllers\Dashboard\ConsultasController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,5 +30,8 @@ Route::middleware(['auth', 'isadmin', 'estatus', 'permisos'])->prefix('/dashboar
     Route::get('usuarios/{usuario?}', [UsersController::class, 'index'])->name('usuarios.index');
     Route::get('export/usuarios/{buscar?}', [UsersController::class, 'export'])->name('usuarios.excel');
     Route::get('pdf/usuarios', [UsersController::class, 'createPDF'])->name('usuarios.pdf');
+
+    Route::get('pacientes', [PacientesController::class, 'index'])->name('pacientes.index');
+    Route::get('consultas', [ConsultasController::class, 'index'])->name('consultas.index');
 
 });

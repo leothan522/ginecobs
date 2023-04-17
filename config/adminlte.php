@@ -45,8 +45,9 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>GINE</b>COBS',
+    /*'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',*/
+    'logo_img' => 'img/logo_circular.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -167,11 +168,11 @@ return [
     |
     */
 
-    'right_sidebar' => false,
-    'right_sidebar_icon' => 'fas fa-cogs',
+    'right_sidebar' => true,
+    'right_sidebar_icon' => 'fas fa-th-large',
     'right_sidebar_theme' => 'dark',
     'right_sidebar_slide' => true,
-    'right_sidebar_push' => true,
+    'right_sidebar_push' => false,
     'right_sidebar_scrollbar_theme' => 'os-theme-light',
     'right_sidebar_scrollbar_auto_hide' => 'l',
 
@@ -241,7 +242,18 @@ return [
         ],
 
         // Sidebar items:
-
+        [
+            'text' => 'Consultas',
+            'icon' => 'fas fa-fw fa-address-book',
+            'route'  => 'consultas.index',
+            'can'  => 'consultas',
+        ],
+        [
+            'text' => 'Pacientes',
+            'icon' => 'fas fa-fw fa-user-friends',
+            'route'  => 'pacientes.index',
+            'can'  => 'pacientes',
+        ],
         [
             'text'      => 'Configuración',
             'icon'      => 'fas fa-fw fa-cogs',
