@@ -231,10 +231,10 @@ return [
             'type'         => 'navbar-search',
             'text'         => 'Buscar',
             'topnav_right' => true,
-            'url'          => 'dashboard/navbar/search', // The url used to submit the data ('#' by default).
+            'url'          => '#', // The url used to submit the data ('#' by default).
             'method'       => 'post',          // 'get' or 'post' ('get' by default).
             'input_name'   => 'searchVal',     // Name for the underlying input ('adminlteSearch' by default).
-            //'id'           => 'navbarSearch'   // ID attribute for the underlying input (optional).
+            'id'           => 'navbarSearch'   // ID attribute for the underlying input (optional).
         ],
         [
             'type'         => 'fullscreen-widget',

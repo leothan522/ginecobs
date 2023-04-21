@@ -37,22 +37,8 @@
 @stop
 
 @section('js')
+    <script src="{{ asset('js/start.js') }}"></script>
     <script>
-        $(function() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            });
-            $('.swalDefaultInfo').click(function() {
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Generando Archivo'
-                })
-            });
-
-        });
         console.log('Hi!');
     </script>
 @stop

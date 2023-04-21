@@ -22,7 +22,7 @@
 @endsection
 
 @section('content')
-    <p>Welcome to this beautiful admin panel.</p>
+    <livewire:dashboard.pacientes-component />
 @endsection
 
 @section('right-sidebar')
@@ -38,6 +38,7 @@
 @endsection
 
 @section('js')
+    <script src="{{ asset('js/start.js') }}"></script>
     <script> console.log('Hi!'); </script>
 @endsection
 
