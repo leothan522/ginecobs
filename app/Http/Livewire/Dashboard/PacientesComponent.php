@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Dashboard;
 
 use App\Models\Paciente;
+use App\Models\Peso;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -22,6 +23,7 @@ class PacientesComponent extends Component
     public $view, $btn_nuevo = true, $btn_cancelar = false, $footer = false, $btn_editar = false, $new_paciente = false;
     public $cedula, $nombre, $fechaNac, $edad, $telefono, $direccion, $fur, $fpp, $gestas, $partos, $cesarias, $abortos,
         $grupo, $paciente_id, $getPaciente, $getEdad, $keyword;
+    public $peso_fecha, $peso_kg, $peso_id, $getPeso, $labelPeso = "Nuevo";
 
     public function render()
     {
@@ -36,13 +38,16 @@ class PacientesComponent extends Component
     public function limpiarPacientes()
     {
         $this->reset([
-            'view', 'btn_nuevo', 'btn_cancelar', 'footer', 'btn_editar', 'new_paciente', 'getPaciente', 'getEdad', 'keyword'
+            'view', 'btn_nuevo', 'btn_cancelar', 'footer', 'btn_editar', 'keyword',
+            'cedula', 'nombre', 'fechaNac', 'edad', 'telefono', 'direccion', 'fur', 'fpp', 'gestas', 'partos', 'cesarias',
+            'abortos', 'grupo'
         ]);
     }
 
     public function create()
     {
         $this->limpiarPacientes();
+        $this->reset(['paciente_id']);
         $this->new_paciente = true;
         $this->btn_nuevo = false;
         $this->btn_cancelar = true;
@@ -97,6 +102,7 @@ class PacientesComponent extends Component
 
         $paciente->save();
         $this->showPacientes($paciente->id);
+        $this->btnPeso();
         $this->alert(
             'success',
             'Guardado.'
@@ -148,6 +154,7 @@ class PacientesComponent extends Component
             $this->showPacientes($this->paciente_id);
         }else{
             $this->limpiarPacientes();
+            $this->reset('new_paciente');
         }
     }
 
@@ -184,7 +191,7 @@ class PacientesComponent extends Component
         } else {
             $paciente->delete();
             $this->limpiarPacientes();
-            $this->paciente_id = null;
+            $this->reset(['getPaciente', 'getEdad', 'paciente_id']);
             $this->alert(
                 'success',
                 'Paciente Eliminado.'
@@ -198,6 +205,84 @@ class PacientesComponent extends Component
         $this->keyword = $keyword;
     }
 
+    // ************************************* PESO *******************************************************************
+
+    public function limpiarPeso()
+    {
+        $this->reset([
+            'peso_fecha', 'peso_kg', 'peso_id', 'labelPeso'
+        ]);
+    }
+
+    public function btnPeso()
+    {
+        $this->limpiarPacientes();
+        $this->limpiarPeso();
+        $this->btn_editar = false;
+        $this->btn_nuevo = false;
+        $this->btn_cancelar = true;
+        $this->footer = true;
+        $this->getPeso = Peso::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->get();
+        $this->peso_fecha = date("Y-m-d");
+        $this->view = "peso";
+    }
+
+    public function savePeso()
+    {
+        $rules = [
+            'peso_fecha'    => 'required',
+            'peso_kg'    => 'required|numeric|gte:0|max:1000'
+        ];
+        $messages = [
+            'peso_fecha.required' => 'El campo Fecha es obligatorio.',
+        ];
+        $this->validate($rules, $messages);
+        if (is_null($this->peso_id)){
+            //nuevo
+            $peso = new Peso();
+            $message = "Peso Guardado.";
+        }else{
+            //editar
+            $peso = Peso::find($this->peso_id);
+            $message = "Peso Actualizado.";
+        }
+        $peso->pacientes_id = $this->paciente_id;
+        $peso->peso = $this->peso_kg;
+        $peso->fecha = $this->peso_fecha;
+        $peso->save();
+
+        if ($this->new_paciente){
+            $this->reset('new_paciente');
+            $this->showPacientes($this->paciente_id);
+        }else{
+            $this->btnPeso();
+        }
+
+        $this->alert(
+            'success',
+            $message
+        );
+    }
+
+    public function editPeso($id)
+    {
+        $peso = Peso::find($id);
+        $this->peso_id = $peso->id;
+        $this->peso_fecha = $peso->fecha;
+        $this->peso_kg = $peso->peso;
+        $this->labelPeso = "Editar";
+    }
+
+    public function destroyPeso($id)
+    {
+        $peso = Peso::find($id);
+        $peso->delete();
+        $this->btnPeso();
+        $this->alert(
+            'success',
+            'Peso Eliminado.'
+        );
+    }
 
 
 }

@@ -5,7 +5,7 @@
         <h3 class="card-title">
             @if($new_paciente) Nuevo Paciente @endif
             @if(!$new_paciente && $view == 'form') Editar Paciente @endif
-            @if($view != "form") Ver Paciente @endif
+            @if(!$new_paciente && $view != "form") Ver Paciente @endif
         </h3>
         <div class="card-tools">
             {{--<span class="btn btn-tool"><i class="fas fa-list"></i></span>--}}
@@ -19,13 +19,15 @@
 
         @if($view)
             @include('dashboard.pacientes.view_'.$view)
+            @else
+            Seleccione algún Paciente.
         @endif
 
     </div>
 
     <div class="card-footer text-center @if(!$footer) d-none @endif">
 
-        <button type="button" class="btn btn-default btn-sm" {{--wire:click="btnUnidad"--}}
+        <button type="button" class="btn btn-default btn-sm" wire:click="btnPeso"
             {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
             <i class="fas fa-weight"></i> Peso
         </button>
