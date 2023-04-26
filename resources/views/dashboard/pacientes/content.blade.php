@@ -4,5 +4,6 @@
     </div>
     <div class="col-md-7">
         @include('dashboard.pacientes.card_show')
+        @include('dashboard.pacientes.modal_antecedentes')
     </div>
 </div>

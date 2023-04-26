@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Dashboard;
 
+use App\Models\Antecedente;
 use App\Models\Paciente;
 use App\Models\Peso;
 use Carbon\Carbon;
@@ -17,23 +18,32 @@ class PacientesComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'confirmed', 'buscar'
+        'confirmed', 'buscar',
+        'limpiarAntecedentes', 'confirmedAntecedente'
     ];
 
     public $view, $btn_nuevo = true, $btn_cancelar = false, $footer = false, $btn_editar = false, $new_paciente = false;
     public $cedula, $nombre, $fechaNac, $edad, $telefono, $direccion, $fur, $fpp, $gestas, $partos, $cesarias, $abortos,
         $grupo, $paciente_id, $getPaciente, $getEdad, $keyword;
     public $peso_fecha, $peso_kg, $peso_id, $getPeso, $labelPeso = "Nuevo";
+    public $ante_nombre, $ante_familiares = false, $ante_personales = false, $ante_otros = false, $antecedente_id,
+            $keywordAntecedentes;
 
     public function render()
     {
         $pacientes = Paciente::buscar($this->keyword)->orderBy('cedula', 'ASC')->paginate(30);
         $rows = Paciente::count();
+        $antecedentes = Antecedente::buscar($this->keywordAntecedentes)->where('band', 1)->get();
+        $rowsAntecedentes = Antecedente::where('band', 1)->count();
         return view('livewire.dashboard.pacientes-component')
             ->with('listarPacientes', $pacientes)
             ->with('rows', $rows)
+            ->with('listarAntecedentes', $antecedentes)
+            ->with('rowsAntecedentes', $rowsAntecedentes)
             ;
     }
+
+    // ************************************* PACIENTES *******************************************************************
 
     public function limpiarPacientes()
     {
@@ -282,6 +292,111 @@ class PacientesComponent extends Component
             'success',
             'Peso Eliminado.'
         );
+    }
+
+    // ************************************* ANTECEDENTES *******************************************************************
+
+    public function limpiarAntecedentes()
+    {
+        $this->reset([
+            'ante_nombre', 'ante_familiares', 'ante_personales', 'ante_otros', 'antecedente_id', 'keywordAntecedentes'
+        ]);
+    }
+
+    public function saveAntecedente()
+    {
+        $rules = [
+            'ante_nombre'    =>  ['required', 'min:4', Rule::unique('antecedentes', 'nombre')->ignore($this->antecedente_id)],
+        ];
+        $messages = [
+            'ante_nombre.required' => 'El campo nombre es obligatorio.',
+            'ante_nombre.min' => 'nombre debe contener al menos 4 caracteres.',
+            'ante_nombre.unique' => 'El campo nombre ya ha sido registrado.',
+        ];
+
+        $this->validate($rules, $messages);
+        $mesage = null;
+
+        if (is_null($this->antecedente_id)){
+            //nuevo
+            $antecedente = new Antecedente();
+            $mesage = "Antecedente creado.";
+        }else{
+            //editar
+            $antecedente = Antecedente::find($this->antecedente_id);
+            $mesage = "Antecedente Actualizado.";
+        }
+
+        $antecedente->nombre = $this->ante_nombre;
+        if ($this->ante_familiares) { $antecedente->familiares = $this->ante_familiares; }else{ $antecedente->familiares = 0; }
+        if ($this->ante_personales) { $antecedente->personales = $this->ante_personales; }else{ $antecedente->personales = 0; }
+        if ($this->ante_otros) { $antecedente->otros = $this->ante_otros; }else{ $antecedente->otros = 0; }
+        $antecedente->save();
+        $this->editAntecedente($antecedente->id);
+        $this->alert(
+            'success',
+            $mesage
+        );
+    }
+
+    public function editAntecedente($id)
+    {
+        $this->limpiarAntecedentes();
+        $antecedente = Antecedente::find($id);
+        $this->antecedente_id = $antecedente->id;
+        $this->ante_nombre = $antecedente->nombre;
+        if ($antecedente->familiares) { $this->ante_familiares = $antecedente->familiares; }
+        if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
+        if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
+        if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
+        if ($antecedente->otros) { $this->ante_otros = $antecedente->otros; }
+    }
+
+    public function destroyAntecedente($id)
+    {
+        $this->antecedente_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedAntecedente',
+        ]);
+    }
+
+    public function confirmedAntecedente()
+    {
+        $antecedente = Antecedente::find($this->antecedente_id);
+
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $antecedente->delete();
+            $this->alert(
+                'success',
+                'Antecedente Eliminado.'
+            );
+            $this->limpiarAntecedentes();
+            $this->limpiarPacientes();
+        }
+    }
+
+    public function buscarAntecedente()
+    {
+        //
     }
 
 

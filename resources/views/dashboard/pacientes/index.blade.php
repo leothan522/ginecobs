@@ -39,7 +39,12 @@
 
 @section('js')
     <script src="{{ asset('js/start.js') }}"></script>
-    <script> console.log('Hi!'); </script>
+    <script>
+        function verAntecedentes() {
+            Livewire.emit('limpiarAntecedentes');
+        }
+        console.log('Hi!');
+    </script>
 @endsection
 
 

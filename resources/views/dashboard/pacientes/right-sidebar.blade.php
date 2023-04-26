@@ -7,12 +7,12 @@
         </li>
         <li class="nav-item">
             <button type="button" class="btn btn-primary btn-sm btn-block m-1"
-                    data-toggle="modal" data-target="#modal-categorias" onclick="verCategorias()"
-                    @if(!comprobarPermisos('categorias.index')) disabled @endif >
-                Categorias
+                    data-toggle="modal" data-target="#modal-antecedentes" onclick="verAntecedentes()"
+                    @if(!comprobarPermisos('antecedentes.index')) disabled @endif >
+                Antecedentes
             </button>
         </li>
-        <li class="nav-item">
+        {{--<li class="nav-item">
             <button type="button" class="btn btn-primary btn-sm btn-block m-1"
                     data-toggle="modal" data-target="#modal-unidades" onclick="verUnidades()"
                     @if(!comprobarPermisos('unidades.index')) disabled @endif >
@@ -42,7 +42,7 @@
                     Tipos
                 </button>
             </li>
-        @endif
+        @endif--}}
 
         <li class="dropdown-divider"></li>
     </ul>
