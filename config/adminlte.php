@@ -246,13 +246,13 @@ return [
             'text' => 'Consultas',
             'icon' => 'fas fa-fw fa-address-book',
             'route'  => 'consultas.index',
-            'can'  => 'consultas',
+            'can'  => 'public',
         ],
         [
             'text' => 'Pacientes',
             'icon' => 'fas fa-fw fa-user-friends',
             'route'  => 'pacientes.index',
-            'can'  => 'pacientes',
+            'can'  => 'public',
         ],
         [
             'text'      => 'Configuración',

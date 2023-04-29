@@ -27,14 +27,6 @@ class AuthServiceProvider extends ServiceProvider
 
         //Muetra en el sidebar los botones segun el permiso
 
-        Gate::define('consultas', function ($user){
-            return comprobarPermisos('consultas.index');
-        });
-
-        Gate::define('pacientes', function ($user){
-            return comprobarPermisos('pacientes.index');
-        });
-
         Gate::define('usuarios', function ($user){
             return comprobarPermisos('usuarios.index');
         });
@@ -43,7 +35,7 @@ class AuthServiceProvider extends ServiceProvider
             return $user->role == 100;
         });
 
-        Gate::define('prueba', function ($user){
+        Gate::define('public', function ($user){
             return true;
         });
 

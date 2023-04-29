@@ -32,6 +32,11 @@ class Paciente extends Model
         return $this->hasMany(Peso::class, 'pacientes_id', 'id');
     }
 
+    public function antecedentes()
+    {
+        return $this->hasMany(PaciAnte::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

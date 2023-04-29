@@ -32,6 +32,11 @@
             <i class="fas fa-weight"></i> Peso
         </button>
 
+        <button type="button" class="btn btn-default btn-sm" wire:click="btnAntecedentes"
+            {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
+            <i class="fas fa-notes-medical"></i> Antecedentes
+        </button>
+
         {{--<button type="button" class="btn btn-default btn-sm" wire:click="btnImagen"
             --}}{{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}{{-->
             <i class="fas fa-image"></i> Imagen
@@ -47,12 +52,18 @@
         </button>--}}
 
         <button type="button" class="btn btn-default btn-sm" wire:click="destroy"
-            {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
+            @if(!comprobarPermisos()) disabled @endif>
             <i class="fas fa-trash-alt"></i> Borrar
         </button>
 
     </div>
 
-    {!! verSpinner() !!}
+    <div class="overlay-wrapper" wire:loading wire:target="create, savePacientes, showPacientes, edit, btnCancelar, destroy, confirmed, buscar, btnPeso, savePeso, editPeso, destroyPeso, saveAntecedente, editAntecedente, confirmedAntecedente, buscarAntecedente, btnAntecedentes, editPaciAnte, savePaciAnte, destroyPaciAnte">
+        <div class="overlay">
+            <div class="spinner-border text-navy" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
 
 </div>

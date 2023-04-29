@@ -8,7 +8,7 @@
         <li class="nav-item">
             <button type="button" class="btn btn-primary btn-sm btn-block m-1"
                     data-toggle="modal" data-target="#modal-antecedentes" onclick="verAntecedentes()"
-                    @if(!comprobarPermisos('antecedentes.index')) disabled @endif >
+                    @if(!comprobarPermisos()) disabled @endif >
                 Antecedentes
             </button>
         </li>

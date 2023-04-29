@@ -17,6 +17,11 @@ class Antecedente extends Model
         'band'
     ];
 
+    public function pacientes()
+    {
+        return $this->hasMany(PaciAnte::class, 'antecedentes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

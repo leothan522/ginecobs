@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Dashboard;
 
 use App\Models\Antecedente;
+use App\Models\PaciAnte;
 use App\Models\Paciente;
 use App\Models\Peso;
 use Carbon\Carbon;
@@ -28,6 +29,9 @@ class PacientesComponent extends Component
     public $peso_fecha, $peso_kg, $peso_id, $getPeso, $labelPeso = "Nuevo";
     public $ante_nombre, $ante_familiares = false, $ante_personales = false, $ante_otros = false, $antecedente_id,
             $keywordAntecedentes;
+    public $form_personales = false, $form_familiares = false, $form_otros = false,
+            $pa_antecedentes_id, $paValor, $pa_detalles, $pa_id, $pa_familiares, $pa_personales, $pa_otros,
+            $pa_tipo, $pa_label_fa, $pa_label_pe = true, $pa_label_ot;
 
     public function render()
     {
@@ -397,6 +401,262 @@ class PacientesComponent extends Component
     public function buscarAntecedente()
     {
         //
+    }
+
+    // ************************************* PACIENTE - ANTECEDENTES *******************************************************************
+
+    public function limpiarPaciAnte()
+    {
+        $this->reset([
+            'form_personales', 'form_familiares', 'form_otros',
+            'pa_antecedentes_id', 'paValor', 'pa_detalles', 'pa_id',
+            'pa_personales', 'pa_familiares', 'pa_otros',
+        ]);
+    }
+    public function btnAntecedentes()
+    {
+        $this->limpiarPacientes();
+        $this->limpiarPaciAnte();
+        $this->btn_editar = false;
+        $this->btn_nuevo = false;
+        $this->btn_cancelar = true;
+        $this->footer = true;
+
+        $this->pa_familiares = Antecedente::where('familiares', 1)->get();
+        $this->pa_otros = Antecedente::where('otros', 1)->get();
+        $this->pa_personales = Antecedente::where('personales', 1)->get();
+
+        $this->pa_personales->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('personales', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+        $this->pa_familiares->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('familiares', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+        $this->pa_otros->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('otros', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+
+        $this->view = "antecedentes";
+    }
+
+    public function editPaciAnte($id, $tipo)
+    {
+        $this->btnAntecedentes();
+        $antecedente = Antecedente::find($id);
+        $this->pa_antecedentes_id = $antecedente->id;
+        $paciAnte = null;
+        switch ($tipo){
+            case "personales":
+                $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('personales', 1)->first();
+                $this->form_personales = $antecedente->nombre;
+                $this->pa_tipo = 1;
+                break;
+            case "familiares":
+                $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('familiares', 1)->first();
+                $this->form_familiares = $antecedente->nombre;
+                $this->pa_tipo = 2;
+                break;
+            case "otros":
+                $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('otros', 1)->first();
+                $this->form_otros = $antecedente->nombre;
+                $this->pa_tipo = 3;
+                break;
+        }
+        if ($paciAnte){
+            $this->pa_id = $paciAnte->id;
+            $this->paValor = $paciAnte->valor;
+            $this->pa_detalles = $paciAnte->detalles;
+        }
+        $this->label($tipo);
+
+    }
+
+    public function savePaciAnte()
+    {
+        if (is_null($this->pa_id)){
+            //nuevo
+            $paciAnte = new PaciAnte();
+        }else{
+            //editar
+            $paciAnte = PaciAnte::find($this->pa_id);
+        }
+        if (!is_null($this->paValor)){
+            $paciAnte->pacientes_id = $this->paciente_id;
+            $paciAnte->antecedentes_id = $this->pa_antecedentes_id;
+            $paciAnte->valor = $this->paValor;
+            $paciAnte->detalles = $this->pa_detalles;
+            switch ($this->pa_tipo){
+                case 1:
+                    $paciAnte->personales = 1;
+                    break;
+                case 2:
+                    $paciAnte->familiares = 1;
+                    break;
+                case 3:
+                    $paciAnte->otros = 1;
+                    break;
+            }
+            $paciAnte->save();
+            $this->alert(
+                'success',
+                'Antecedente Actualizado.'
+            );
+        }
+        $this->btnAntecedentes();
+    }
+
+    public function updatedPaValor()
+    {
+        $this->pa_familiares = Antecedente::where('familiares', 1)->get();
+        $this->pa_otros = Antecedente::where('otros', 1)->get();
+        $this->pa_personales = Antecedente::where('personales', 1)->get();
+
+        $this->pa_personales->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('personales', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+        $this->pa_familiares->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('familiares', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+        $this->pa_otros->each(function ($antecedente){
+            $paciAnte = PaciAnte::where('pacientes_id', $this->paciente_id)->where('antecedentes_id', $antecedente->id)->where('otros', 1)->first();
+            if ($paciAnte){
+                if ($paciAnte->valor){
+                    $antecedente->si = true;
+                    $antecedente->no = false;
+                }else{
+                    $antecedente->si = false;
+                    $antecedente->no = true;
+                }
+                $antecedente->detalles = $paciAnte->detalles;
+                $antecedente->pa_id = $paciAnte->id;
+            }else{
+                $antecedente->si = false;
+                $antecedente->no = false;
+                $antecedente->detalles = null;
+                $antecedente->pa_id = false;
+            }
+        });
+    }
+
+    public function destroyPaciAnte($id)
+    {
+        $paciAnte = PaciAnte::find($id);
+        if ($paciAnte->personales){
+            $this->label('personales');
+        }
+        if ($paciAnte->familiares){
+            $this->label('familiares');
+        }
+        if ($paciAnte->otros){
+            $this->label('otros');
+        }
+        $paciAnte->delete();
+        $this->btnAntecedentes();
+        $this->alert(
+            'success',
+            'Antecedente Eliminado.'
+        );
+    }
+
+    public function label($label)
+    {
+        switch ($label){
+            case "personales":
+                $this->pa_label_pe = true;
+                $this->pa_label_fa = false;
+                $this->pa_label_ot = false;
+                break;
+            case "familiares":
+                $this->pa_label_pe = false;
+                $this->pa_label_fa = true;
+                $this->pa_label_ot = false;
+                break;
+            case "otros":
+                $this->pa_label_pe = false;
+                $this->pa_label_fa = false;
+                $this->pa_label_ot = true;
+                break;
+        }
     }
 
 

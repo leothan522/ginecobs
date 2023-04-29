@@ -38,12 +38,12 @@
                         <td class="justify-content-end">
                             <div class="btn-group">
                                 <button wire:click="editAntecedente({{ $antecedente->id }})" class="btn btn-primary btn-sm"
-                                @if(!comprobarPermisos('antecedentes.edit')) disabled @endif >
+                                {{--@if(!comprobarPermisos('antecedentes.edit')) disabled @endif--}} >
                                     <i class="fas fa-edit"></i>
                                 </button>
 
                                 <button wire:click="destroyAntecedente({{ $antecedente->id }})" class="btn btn-primary btn-sm"
-                                @if(!comprobarPermisos('antecedentes.destroy')) disabled @endif >
+                                {{--@if(!comprobarPermisos('antecedentes.destroy')) disabled @endif--}} >
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>

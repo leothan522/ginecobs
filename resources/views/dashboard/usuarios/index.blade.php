@@ -24,7 +24,7 @@
 @section('content')
 
     @livewire('usuarios-component')
-    @livewire('roles-component')
+    {{--@livewire('roles-component')--}}
 
 @stop
 
