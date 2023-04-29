@@ -43,6 +43,12 @@
         function verAntecedentes() {
             Livewire.emit('limpiarAntecedentes');
         }
+        function verGinecostetricos() {
+            Livewire.emit('limpiarGinecostetricos');
+        }
+        function verVacunas() {
+            Livewire.emit('limpiarVacunas');
+        }
         console.log('Hi!');
     </script>
 @endsection

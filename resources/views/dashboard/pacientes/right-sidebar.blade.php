@@ -12,15 +12,22 @@
                 Antecedentes
             </button>
         </li>
-        {{--<li class="nav-item">
+        <li class="nav-item">
             <button type="button" class="btn btn-primary btn-sm btn-block m-1"
-                    data-toggle="modal" data-target="#modal-unidades" onclick="verUnidades()"
-                    @if(!comprobarPermisos('unidades.index')) disabled @endif >
-                Unidades
+                    data-toggle="modal" data-target="#modal-ginecostetricos" onclick="verGinecostetricos()"
+                    @if(!comprobarPermisos()) disabled @endif >
+                Ginecostetricos
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="btn btn-primary btn-sm btn-block m-1"
+                    data-toggle="modal" data-target="#modal-vacunas" onclick="verVacunas()"
+                    @if(!comprobarPermisos()) disabled @endif >
+                Vacunas
             </button>
         </li>
 
-        @if(auth()->user()->role == 100)
+        {{--@if(auth()->user()->role == 100)
             <li class="nav-item">
                 <button type="button" class="btn btn-primary btn-sm btn-block m-1"
                         data-toggle="modal" data-target="#modal-procedencias" onclick="verProcedencias()"

@@ -3,9 +3,11 @@
 namespace App\Http\Livewire\Dashboard;
 
 use App\Models\Antecedente;
+use App\Models\Ginecostetrico;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
 use App\Models\Peso;
+use App\Models\Vacuna;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -20,7 +22,9 @@ class PacientesComponent extends Component
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
         'confirmed', 'buscar',
-        'limpiarAntecedentes', 'confirmedAntecedente'
+        'limpiarAntecedentes', 'confirmedAntecedente',
+        'limpiarGinecostetricos', 'confirmedGinecostetrico',
+        'limpiarVacunas', 'confirmedVacuna'
     ];
 
     public $view, $btn_nuevo = true, $btn_cancelar = false, $footer = false, $btn_editar = false, $new_paciente = false;
@@ -32,18 +36,28 @@ class PacientesComponent extends Component
     public $form_personales = false, $form_familiares = false, $form_otros = false,
             $pa_antecedentes_id, $paValor, $pa_detalles, $pa_id, $pa_familiares, $pa_personales, $pa_otros,
             $pa_tipo, $pa_label_fa, $pa_label_pe = true, $pa_label_ot;
+    public $keywordGinecostetricos, $gine_nombre, $ginecostetrico_id;
+    public $keywordVacunas, $vacu_nombre, $vacuna_id;
 
     public function render()
     {
         $pacientes = Paciente::buscar($this->keyword)->orderBy('cedula', 'ASC')->paginate(30);
         $rows = Paciente::count();
-        $antecedentes = Antecedente::buscar($this->keywordAntecedentes)->where('band', 1)->get();
-        $rowsAntecedentes = Antecedente::where('band', 1)->count();
+        $antecedentes = Antecedente::buscar($this->keywordAntecedentes)->get();
+        $rowsAntecedentes = Antecedente::count();
+        $ginecostetricos = Ginecostetrico::buscar($this->keywordGinecostetricos)->get();
+        $rowsGinecostetricos = Ginecostetrico::count();
+        $vacunas = Vacuna::buscar($this->keywordVacunas)->get();
+        $rowsVacunas = Vacuna::count();
         return view('livewire.dashboard.pacientes-component')
             ->with('listarPacientes', $pacientes)
             ->with('rows', $rows)
             ->with('listarAntecedentes', $antecedentes)
             ->with('rowsAntecedentes', $rowsAntecedentes)
+            ->with('listarGinecostetricos', $ginecostetricos)
+            ->with('rowsGinecostetricos', $rowsGinecostetricos)
+            ->with('listarVacunas', $vacunas)
+            ->with('rowsVacunas', $rowsVacunas)
             ;
     }
 
@@ -351,8 +365,6 @@ class PacientesComponent extends Component
         $this->ante_nombre = $antecedente->nombre;
         if ($antecedente->familiares) { $this->ante_familiares = $antecedente->familiares; }
         if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
-        if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
-        if ($antecedente->personales) { $this->ante_personales = $antecedente->personales; }
         if ($antecedente->otros) { $this->ante_otros = $antecedente->otros; }
     }
 
@@ -657,6 +669,200 @@ class PacientesComponent extends Component
                 $this->pa_label_ot = true;
                 break;
         }
+    }
+
+    // ************************************* GINECOSTETRICOS *******************************************************************
+
+    public function limpiarGinecostetricos()
+    {
+        $this->reset([
+            'gine_nombre', 'ginecostetrico_id', 'keywordGinecostetricos'
+        ]);
+    }
+
+    public function saveGinecostetrico()
+    {
+        $rules = [
+            'gine_nombre'    =>  ['required', 'min:4', Rule::unique('ginecostetricos', 'nombre')->ignore($this->ginecostetrico_id)],
+        ];
+        $messages = [
+            'gine_nombre.required' => 'El campo nombre es obligatorio.',
+            'gine_nombre.min' => 'nombre debe contener al menos 4 caracteres.',
+            'gine_nombre.unique' => 'El campo nombre ya ha sido registrado.',
+        ];
+
+        $this->validate($rules, $messages);
+        $mesage = null;
+
+        if (is_null($this->ginecostetrico_id)){
+            //nuevo
+            $antecedente = new Ginecostetrico();
+            $mesage = "Ginecostetrico creado.";
+        }else{
+            //editar
+            $antecedente = Ginecostetrico::find($this->ginecostetrico_id);
+            $mesage = "Ginecostetricos Actualizado.";
+        }
+
+        $antecedente->nombre = $this->gine_nombre;
+        $antecedente->save();
+        $this->editGinecostetrico($antecedente->id);
+        $this->alert(
+            'success',
+            $mesage
+        );
+    }
+
+    public function editGinecostetrico($id)
+    {
+        $this->limpiarGinecostetricos();
+        $antecedente = Ginecostetrico::find($id);
+        $this->ginecostetrico_id = $antecedente->id;
+        $this->gine_nombre = $antecedente->nombre;
+    }
+
+    public function destroyGinecostetrico($id)
+    {
+        $this->ginecostetrico_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedGinecostetrico',
+        ]);
+    }
+
+    public function confirmedGinecostetrico()
+    {
+        $antecedente = Ginecostetrico::find($this->ginecostetrico_id);
+
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $antecedente->delete();
+            $this->alert(
+                'success',
+                'Ginecostetrico Eliminado.'
+            );
+            $this->limpiarGinecostetricos();
+            $this->limpiarPacientes();
+        }
+    }
+
+    public function buscarGinecostetrico()
+    {
+        //
+    }
+
+    // ************************************* VACUNAS *******************************************************************
+
+    public function limpiarVacunas()
+    {
+        $this->reset([
+            'vacu_nombre', 'vacuna_id', 'keywordVacunas'
+        ]);
+    }
+
+    public function saveVacuna()
+    {
+        $rules = [
+            'vacu_nombre'    =>  ['required', 'min:4', Rule::unique('vacunas', 'nombre')->ignore($this->vacuna_id)],
+        ];
+        $messages = [
+            'vacu_nombre.required' => 'El campo nombre es obligatorio.',
+            'vacu_nombre.min' => 'nombre debe contener al menos 4 caracteres.',
+            'vacu_nombre.unique' => 'El campo nombre ya ha sido registrado.',
+        ];
+
+        $this->validate($rules, $messages);
+        $mesage = null;
+
+        if (is_null($this->vacuna_id)){
+            //nuevo
+            $antecedente = new Vacuna();
+            $mesage = "Vacuna creada.";
+        }else{
+            //editar
+            $antecedente = Vacuna::find($this->vacuna_id);
+            $mesage = "Vacuna Actualizada.";
+        }
+
+        $antecedente->nombre = $this->vacu_nombre;
+        $antecedente->save();
+        $this->editVacuna($antecedente->id);
+        $this->alert(
+            'success',
+            $mesage
+        );
+    }
+
+    public function editVacuna($id)
+    {
+        $this->limpiarVacunas();
+        $antecedente = Vacuna::find($id);
+        $this->vacuna_id = $antecedente->id;
+        $this->vacu_nombre = $antecedente->nombre;
+    }
+
+    public function destroyVacuna($id)
+    {
+        $this->vacuna_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedVacuna',
+        ]);
+    }
+
+    public function confirmedVacuna()
+    {
+        $antecedente = Vacuna::find($this->vacuna_id);
+
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $antecedente->delete();
+            $this->alert(
+                'success',
+                'Ginecostetrico Eliminado.'
+            );
+            $this->limpiarVacunas();
+            $this->limpiarPacientes();
+        }
+    }
+
+    public function buscarVacuna()
+    {
+        //
     }
 
 

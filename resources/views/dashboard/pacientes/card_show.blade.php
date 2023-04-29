@@ -29,7 +29,7 @@
 
         <button type="button" class="btn btn-default btn-sm" wire:click="btnPeso"
             {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
-            <i class="fas fa-weight"></i> Peso
+            <i class="fas fa-weight"></i> Control Peso
         </button>
 
         <button type="button" class="btn btn-default btn-sm" wire:click="btnAntecedentes"
@@ -37,19 +37,16 @@
             <i class="fas fa-notes-medical"></i> Antecedentes
         </button>
 
-        {{--<button type="button" class="btn btn-default btn-sm" wire:click="btnImagen"
-            --}}{{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}{{-->
-            <i class="fas fa-image"></i> Imagen
+        <button type="button" class="btn btn-default btn-sm" {{--wire:click="btnImagen"--}}
+            {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
+            <i class="fas fa-user-nurse"></i> Ginecostetricos
         </button>
---}}
-        {{--<button type="button" class="btn btn-default btn-sm" --}}{{--wire:click="btnActivoInactivo"--}}{{--
-            --}}{{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}{{-->
-            @if(/*$articulo_estatus*/true)
-                <i class="fas fa-check"></i> Activo
-            @else
-                <i class="fas fa-ban"></i> Inactivo
-            @endif
-        </button>--}}
+
+        <button type="button" class="btn btn-default btn-sm" {{--wire:click="btnImagen"--}}
+            {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
+            <i class="fas fa-syringe"></i> Vacunas
+        </button>
+
 
         <button type="button" class="btn btn-default btn-sm" wire:click="destroy"
             @if(!comprobarPermisos()) disabled @endif>

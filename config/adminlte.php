@@ -255,6 +255,24 @@ return [
             'can'  => 'public',
         ],
         [
+            'text' => 'Control',
+            'icon' => 'fas fa-fw fa-book-medical',
+            'route'  => 'pacientes.index',
+            'can'  => 'public',
+        ],
+        [
+            'text' => 'Examenes',
+            'icon' => 'fas fa-fw fa-id-card-alt',
+            'route'  => 'pacientes.index',
+            'can'  => 'public',
+        ],
+        [
+            'text' => 'Ginecologia',
+            'icon' => 'fas fa-fw fa-user-nurse',
+            'route'  => 'pacientes.index',
+            'can'  => 'public',
+        ],
+        [
             'text'      => 'Configuración',
             'icon'      => 'fas fa-fw fa-cogs',
             'can'       => 'usuarios',

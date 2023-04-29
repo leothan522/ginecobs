@@ -14,7 +14,6 @@ class Antecedente extends Model
         'familiares',
         'personales',
         'otros',
-        'band'
     ];
 
     public function pacientes()

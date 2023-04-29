@@ -20,7 +20,6 @@ class CreateAntecedentesTable extends Migration
             $table->integer('familiares')->default(0);
             $table->integer('personales')->default(0);
             $table->integer('otros')->default(0);
-            $table->integer('band')->default(1);
             $table->timestamps();
         });
 
@@ -81,13 +80,6 @@ class CreateAntecedentesTable extends Migration
                 "nombre" => "OTROS",
                 "familiares" => 1,
                 "personales" => 1,
-                "created_at" => \Carbon\Carbon::now(),
-                "updated_at" => \Carbon\Carbon::now(),
-            ]);
-        DB::table("antecedentes")
-            ->insert([
-                "nombre" => "ULTIMA CITOLOGIA",
-                "otros" => 1,
                 "created_at" => \Carbon\Carbon::now(),
                 "updated_at" => \Carbon\Carbon::now(),
             ]);
