@@ -47,6 +47,11 @@ class Paciente extends Model
         return $this->hasOne(Tipaje::class, 'pacientes_id', 'id');
     }
 
+    public function ginecostetricos()
+    {
+        return $this->hasMany(PaciGine::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

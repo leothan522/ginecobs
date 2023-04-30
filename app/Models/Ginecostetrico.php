@@ -11,12 +11,15 @@ class Ginecostetrico extends Model
     protected $table = "ginecostetricos";
     protected $fillable = ['nombre'];
 
-
+    public function pacientes()
+    {
+        return $this->hasMany(PaciGine::class, 'ginecostetricos_id', 'id');
+    }
 
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")
             ;
     }
-    
+
 }

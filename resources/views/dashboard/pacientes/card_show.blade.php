@@ -37,7 +37,7 @@
             <i class="fas fa-notes-medical"></i> Antecedentes
         </button>
 
-        <button type="button" class="btn btn-default btn-sm" {{--wire:click="btnImagen"--}}
+        <button type="button" class="btn btn-default btn-sm" wire:click="btnGinecostetricos"
             {{--@if(!comprobarPermisos('empresas.horario')) disabled @endif--}}>
             <i class="fas fa-user-nurse"></i> Ginecostetricos
         </button>
@@ -55,7 +55,7 @@
 
     </div>
 
-    <div class="overlay-wrapper" wire:loading wire:target="create, savePacientes, showPacientes, edit, btnCancelar, destroy, confirmed, buscar, btnPeso, savePeso, editPeso, destroyPeso, saveAntecedente, editAntecedente, confirmedAntecedente, buscarAntecedente, btnAntecedentes, editPaciAnte, savePaciAnte, destroyPaciAnte, btnVacunas, editPaciVacu, savePaciVacu, destroyPaciVacu, editTipaje, saveTipaje, destroyTipaje">
+    <div class="overlay-wrapper" wire:loading wire:target="create, savePacientes, showPacientes, edit, btnCancelar, destroy, confirmed, buscar, btnPeso, savePeso, editPeso, destroyPeso, saveAntecedente, editAntecedente, confirmedAntecedente, buscarAntecedente, btnAntecedentes, editPaciAnte, savePaciAnte, destroyPaciAnte, btnVacunas, editPaciVacu, savePaciVacu, destroyPaciVacu, editTipaje, saveTipaje, destroyTipaje, btnGinecostetricos, editPaciGine, savePaciGine">
         <div class="overlay">
             <div class="spinner-border text-navy" role="status">
                 <span class="sr-only">Loading...</span>

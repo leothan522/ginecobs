@@ -6,6 +6,7 @@ use App\Models\Antecedente;
 use App\Models\Ginecostetrico;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
+use App\Models\PaciGine;
 use App\Models\PaciVacuna;
 use App\Models\Peso;
 use App\Models\Tipaje;
@@ -43,6 +44,7 @@ class PacientesComponent extends Component
     public $pv_listar, $pv_vacuna_id, $pv_dosis_1, $pv_dosis_2, $pv_refuerzo, $pv_label_va = true, $pv_label_ti,
             $form_vacunas = false, $pv_id;
     public $form_tipaje = false, $tipaje_id, $pt_madre, $pt_padre, $pt_sensibilidad;
+    public $form_ginecostetricos = false, $pg_listar, $pg_ginecostetrico_id, $pg_detalles, $pg_id;
 
     public function render()
     {
@@ -1027,6 +1029,84 @@ class PacientesComponent extends Component
 
     // ************************************* Ginecostetricos *******************************************************************
 
+    public function limpiarPaciGine()
+    {
+        $this->reset([
+            'form_ginecostetricos', 'pg_listar', 'pg_ginecostetrico_id', 'pg_detalles', 'pg_id'
+        ]);
+    }
+
+    public function btnGinecostetricos()
+    {
+        $this->limpiarPacientes();
+        $this->limpiarPaciGine();
+        $this->btn_editar = false;
+        $this->btn_nuevo = false;
+        $this->btn_cancelar = true;
+        $this->footer = true;
+
+        $this->pg_listar = Ginecostetrico::get();
+        $this->pg_listar->each(function ($antecedente){
+            $paciGine = PaciGine::where('pacientes_id', $this->paciente_id)->where('ginecostetricos_id', $antecedente->id)->first();
+            if ($paciGine){
+                $antecedente->detalles = $paciGine->detalles;
+                $antecedente->pg_id = $paciGine->id;
+            }else{
+                $antecedente->detalles = null;
+                $antecedente->pg_id = null;
+            }
+        });
+
+        $this->view = "ginecostetricos";
+    }
+
+    public function editPaciGine($id)
+    {
+        $this->btnGinecostetricos();
+        $ginecostetrico = Ginecostetrico::find($id);
+        $this->form_ginecostetricos = $ginecostetrico->nombre;
+        $this->pg_ginecostetrico_id = $ginecostetrico->id;
+        $paciGine = PaciGine::where('pacientes_id', $this->paciente_id)->where('ginecostetricos_id', $id)->first();
+        if ($paciGine){
+            $this->pg_id = $paciGine->id;
+            $this->pg_detalles = $paciGine->detalles;
+        }
+    }
+
+    public function savePaciGine()
+    {
+        if (is_null($this->pg_id)){
+            //nuevo
+            $paciGine = new PaciGine();
+            $message = "Registro Guardado.";
+        }else{
+            //editar
+            $paciGine = PaciGine::find($this->pg_id);
+            $message = "Registro Actualizado.";
+        }
+        if ($this->pg_detalles){
+            $paciGine->pacientes_id = $this->paciente_id;
+            $paciGine->ginecostetricos_id = $this->pg_ginecostetrico_id;
+            $paciGine->detalles = $this->pg_detalles;
+            $paciGine->save();
+            $this->alert(
+                'success',
+                $message
+            );
+        }
+        $this->btnGinecostetricos();
+    }
+
+    public function destroyPaciGine($id)
+    {
+        $paciGine = PaciGine::find($id);
+        $paciGine->delete();
+        $this->alert(
+            'success',
+            'Registro Borrado.'
+        );
+        $this->btnGinecostetricos();
+    }
 
 
 }

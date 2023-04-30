@@ -257,19 +257,19 @@ return [
         [
             'text' => 'Control',
             'icon' => 'fas fa-fw fa-book-medical',
-            'route'  => 'pacientes.index',
+            'route'  => 'parametros.index',
             'can'  => 'public',
         ],
         [
             'text' => 'Examenes',
             'icon' => 'fas fa-fw fa-id-card-alt',
-            'route'  => 'pacientes.index',
+            'route'  => 'parametros.index',
             'can'  => 'public',
         ],
         [
             'text' => 'Ginecologia',
             'icon' => 'fas fa-fw fa-user-nurse',
-            'route'  => 'pacientes.index',
+            'route'  => 'parametros.index',
             'can'  => 'public',
         ],
         [
