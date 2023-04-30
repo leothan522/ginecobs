@@ -18,4 +18,10 @@ class Vacuna extends Model
         return $query->where('nombre', 'LIKE', "%$keyword%")
             ;
     }
+
+    public function pacientes()
+    {
+        return $this->hasMany(PaciVacuna::class, 'vacunas_id', 'id');
+    }
+
 }

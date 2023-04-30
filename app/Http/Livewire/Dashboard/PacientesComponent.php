@@ -6,7 +6,9 @@ use App\Models\Antecedente;
 use App\Models\Ginecostetrico;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
+use App\Models\PaciVacuna;
 use App\Models\Peso;
+use App\Models\Tipaje;
 use App\Models\Vacuna;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
@@ -38,6 +40,9 @@ class PacientesComponent extends Component
             $pa_tipo, $pa_label_fa, $pa_label_pe = true, $pa_label_ot;
     public $keywordGinecostetricos, $gine_nombre, $ginecostetrico_id;
     public $keywordVacunas, $vacu_nombre, $vacuna_id;
+    public $pv_listar, $pv_vacuna_id, $pv_dosis_1, $pv_dosis_2, $pv_refuerzo, $pv_label_va = true, $pv_label_ti,
+            $form_vacunas = false, $pv_id;
+    public $form_tipaje = false, $tipaje_id, $pt_madre, $pt_padre, $pt_sensibilidad;
 
     public function render()
     {
@@ -864,6 +869,164 @@ class PacientesComponent extends Component
     {
         //
     }
+
+
+    // ************************************* PACIENTES - VACUNAS *******************************************************************
+
+    public function limpiarPaciVacu()
+    {
+        $this->reset([
+            'pv_listar', 'pv_vacuna_id', 'pv_dosis_1', 'pv_dosis_2', 'pv_refuerzo', 'pv_label_va', 'pv_label_ti', 'form_vacunas', 'pv_id',
+            'form_tipaje', 'tipaje_id', 'pt_madre', 'pt_padre', 'pt_sensibilidad'
+        ]);
+    }
+
+    public function btnVacunas()
+    {
+        $this->limpiarPacientes();
+        $this->limpiarPaciVacu();
+        $this->btn_editar = false;
+        $this->btn_nuevo = false;
+        $this->btn_cancelar = true;
+        $this->footer = true;
+
+        $this->pv_listar = Vacuna::get();
+        $this->pv_listar->each(function ($vacuna){
+            $paciVacu = PaciVacuna::where('pacientes_id', $this->paciente_id)->where('vacunas_id', $vacuna->id)->first();
+            if ($paciVacu){
+                $vacuna->pv_id = $paciVacu->id;
+                $vacuna->dosis_1 = $paciVacu->dosis_1;
+                $vacuna->dosis_2 = $paciVacu->dosis_2;
+                $vacuna->refuerzo = $paciVacu->refuerzo;
+            }else{
+                $vacuna->pv_id = null;
+                $vacuna->dosis_1 = null;
+                $vacuna->dosis_2 = null;
+                $vacuna->refuerzo = null;
+            }
+        });
+
+        $tipaje = Tipaje::where('pacientes_id', $this->paciente_id)->first();
+        if ($tipaje){
+            $this->tipaje_id = $tipaje->id;
+            $this->pt_madre = $tipaje->madre;
+            $this->pt_padre = $tipaje->padre;
+            $this->pt_sensibilidad = $tipaje->sensibilidad;
+        }
+
+        $this->view = "vacunas";
+    }
+
+    public function editPaciVacu($id)
+    {
+        $this->btnVacunas();
+        $vacuna = Vacuna::find($id);
+        $this->form_vacunas = $vacuna->nombre;
+        $paciVacu = PaciVacuna::where('pacientes_id', $this->paciente_id)->where('vacunas_id', $vacuna->id)->first();
+        if ($paciVacu){
+            $this->pv_id = $paciVacu->id;
+            $this->pv_dosis_1 = $paciVacu->dosis_1;
+            $this->pv_dosis_2 = $paciVacu->dosis_2;
+            $this->pv_refuerzo = $paciVacu->refuerzo;
+        }else{
+            $this->pv_id = null;
+            $this->pv_dosis_1 = null;
+            $this->pv_dosis_2 = null;
+            $this->pv_refuerzo = null;
+        }
+        $this->pv_vacuna_id = $id;
+    }
+
+    public function savePaciVacu()
+    {
+        if (is_null($this->pv_id)){
+            //nuevo
+            $paciVacu = new PaciVacuna();
+            $message = "Registro Guardado.";
+        }else{
+            //editar
+            $paciVacu = PaciVacuna::find($this->pv_id);
+            $message = "Registro Actualizado.";
+        }
+
+        if ($this->pv_dosis_1 || $this->pv_dosis_2 || $this->pv_refuerzo){
+            $paciVacu->pacientes_id = $this->paciente_id;
+            $paciVacu->vacunas_id = $this->pv_vacuna_id;
+            $paciVacu->dosis_1 = $this->pv_dosis_1;
+            $paciVacu->dosis_2 = $this->pv_dosis_2;
+            $paciVacu->refuerzo = $this->pv_refuerzo;
+            $paciVacu->save();
+            $this->alert(
+                'success',
+                $message
+            );
+        }
+        $this->btnVacunas();
+    }
+
+    public function destroyPaciVacu($id)
+    {
+        $paciVacu = PaciVacuna::find($id);
+        $paciVacu->delete();
+        $this->alert(
+            'success',
+            'Registro Borrado.'
+        );
+        $this->btnVacunas();
+    }
+
+    public function editTipaje()
+    {
+        $this->btnVacunas();
+        $this->pv_label_va = false;
+        $this->pv_label_ti = true;
+        $this->form_tipaje = true;
+    }
+
+    public function saveTipaje()
+    {
+
+        if (is_null($this->tipaje_id)){
+            //nuevo
+            $tipaje = new Tipaje();
+            $message = "Tipaje Guardado.";
+        }else{
+            //editar
+            $tipaje = Tipaje::find($this->tipaje_id);
+            $message = "Tipaje Actualizado.";
+        }
+
+        if ($this->pt_madre || $this->pt_padre || $this->pt_sensibilidad){
+            $tipaje->pacientes_id = $this->paciente_id;
+            $tipaje->madre= $this->pt_madre;
+            $tipaje->padre= $this->pt_padre;
+            $tipaje->sensibilidad= $this->pt_sensibilidad;
+            $tipaje->save();
+            $this->alert(
+                'success',
+                $message
+            );
+        }
+        $this->btnVacunas();
+        $this->pv_label_va = false;
+        $this->pv_label_ti = true;
+    }
+
+    public function destroyTipaje()
+    {
+        $tipaje = Tipaje::find($this->tipaje_id);
+        $tipaje->delete();
+        $this->alert(
+            'success',
+            'Tipaje Eliminado.'
+        );
+        $this->btnVacunas();
+        $this->pv_label_va = false;
+        $this->pv_label_ti = true;
+    }
+
+    // ************************************* Ginecostetricos *******************************************************************
+
 
 
 }

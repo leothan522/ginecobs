@@ -37,6 +37,16 @@ class Paciente extends Model
         return $this->hasMany(PaciAnte::class, 'pacientes_id', 'id');
     }
 
+    public function vacunas()
+    {
+        return $this->hasMany(Vacuna::class, 'vacunas_id', 'id');
+    }
+
+    public function tipaje()
+    {
+        return $this->hasOne(Tipaje::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")
