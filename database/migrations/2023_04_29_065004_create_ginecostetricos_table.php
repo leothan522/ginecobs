@@ -21,12 +21,6 @@ class CreateGinecostetricosTable extends Migration
         });
         DB::table("ginecostetricos")
             ->insert([
-                "nombre" => "ULTIMA CITOLOGIA",
-                "created_at" => \Carbon\Carbon::now(),
-                "updated_at" => \Carbon\Carbon::now(),
-            ]);
-        DB::table("ginecostetricos")
-            ->insert([
                 "nombre" => "MENARQUIA",
                 "created_at" => \Carbon\Carbon::now(),
                 "updated_at" => \Carbon\Carbon::now(),

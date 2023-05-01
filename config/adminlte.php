@@ -257,19 +257,13 @@ return [
         [
             'text' => 'Control',
             'icon' => 'fas fa-fw fa-book-medical',
-            'route'  => 'parametros.index',
-            'can'  => 'public',
-        ],
-        [
-            'text' => 'Examenes',
-            'icon' => 'fas fa-fw fa-id-card-alt',
-            'route'  => 'parametros.index',
+            'route'  => 'control.index',
             'can'  => 'public',
         ],
         [
             'text' => 'Ginecologia',
             'icon' => 'fas fa-fw fa-user-nurse',
-            'route'  => 'parametros.index',
+            'route'  => 'ginecologia.index',
             'can'  => 'public',
         ],
         [
@@ -437,14 +431,17 @@ return [
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
+                    'asset' => true,
+                    /*'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',*/
+                    'location' => 'vendor/select2/js/select2.min.js',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',
+                    'asset' => true,
+                    /*'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',*/
+                    'location' => 'vendor/select2/css/select2.min.css',
                 ],
+
             ],
         ],
         'Chartjs' => [

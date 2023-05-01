@@ -5,6 +5,8 @@ use App\Http\Controllers\Dashboard\SearchController;
 use App\Http\Controllers\Dashboard\UsersController;
 use App\Http\Controllers\Dashboard\PacientesController;
 use App\Http\Controllers\Dashboard\ConsultasController;
+use App\Http\Controllers\Dashboard\ControlController;
+use App\Http\Controllers\Dashboard\GinecologiaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,5 +35,7 @@ Route::middleware(['auth', 'estatus'])->prefix('/dashboard')->group(function (){
 
     Route::get('pacientes', [PacientesController::class, 'index'])->name('pacientes.index');
     Route::get('consultas', [ConsultasController::class, 'index'])->name('consultas.index');
+    Route::get('control', [ControlController::class, 'index'])->name('control.index');
+    Route::get('ginecologia', [GinecologiaController::class, 'index'])->name('ginecologia.index');
 
 });

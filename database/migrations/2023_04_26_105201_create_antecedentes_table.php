@@ -85,6 +85,13 @@ class CreateAntecedentesTable extends Migration
             ]);
         DB::table("antecedentes")
             ->insert([
+                "nombre" => "ULTIMA CITOLOGIA",
+                "otros" => 1,
+                "created_at" => \Carbon\Carbon::now(),
+                "updated_at" => \Carbon\Carbon::now(),
+            ]);
+        DB::table("antecedentes")
+            ->insert([
                 "nombre" => "PESO FETAL MAYOR",
                 "otros" => 1,
                 "created_at" => \Carbon\Carbon::now(),
