@@ -8,6 +8,7 @@ use App\Models\Laboratorio1;
 use App\Models\Laboratorio2;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
+use App\Models\PaciUro;
 use App\Models\PaciVacuna;
 use App\Models\Peso;
 use App\Models\Tipaje;
@@ -24,7 +25,7 @@ class ControlComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1', 'confirmedLaboratorio2'
+        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1', 'confirmedLaboratorio2', 'confirmedUroanalisis'
     ];
 
     public $table = "control", $form, $title_agregar = "Agregar";
@@ -36,6 +37,7 @@ class ControlComponent extends Component
             $ex1_id;
     public $ex2_fecha, $ex2_hiv, $ex2_vdrl, $ex2_anticore, $ex2_tgo, $ex2_tpg, $ex2_ldh, $ex2_igm, $ex2_igg, $ex2_tsh, $ex2_t4,
             $ex2_id;
+    public $ex3_fecha, $ex3_leu, $ex3_bac, $ex3_detalles, $ex3_id;
 
     public function render()
     {
@@ -47,6 +49,7 @@ class ControlComponent extends Component
         $control = Control::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         $laboratorio1 = Laboratorio1::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         $laboratorio2 = Laboratorio2::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
+        $uroanalisis = PaciUro::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->get();
         return view('livewire.dashboard.control-component')
             ->with('listarPacientes', $pacientes)
             ->with('listarPersonales', $personales)
@@ -56,6 +59,7 @@ class ControlComponent extends Component
             ->with('listarControl', $control)
             ->with('listarLaboratorio1', $laboratorio1)
             ->with('listarLaboratorio2', $laboratorio2)
+            ->with('listarUroanalisis', $uroanalisis)
             ;
     }
 
@@ -588,6 +592,110 @@ class ControlComponent extends Component
         }
     }
 
+    // *********************************************** UROANALISIS *******************************************************************
+
+    public function limpiarUroanalisis()
+    {
+        $this->reset([
+            'ex3_fecha', 'ex3_leu', 'ex3_bac', 'ex3_detalles', 'ex3_id'
+        ]);
+    }
+
+    public function saveUroanalisis()
+    {
+        $rules = [
+            'ex3_fecha' =>  ['required', Rule::unique('pacientes_uroanalisis', 'fecha')->where(function ($query) {
+                return $query->where('pacientes_id', $this->paciente_id);
+            })->ignore($this->ex3_id)],
+        ];
+        $messages = [
+            'ex3_fecha.required'    =>  'El campo fecha es obligatorio.',
+            'ex3_fecha.unique'    =>  'El campo fecha ya ha sido registrado.'
+        ];
+        $this->validate($rules, $messages);
+        if ($this->ex3_leu || $this->ex3_bac || $this->ex3_detalles){
+
+            //procesar
+            $tipo = "success";
+            if ($this->ex3_id){
+                //editar
+                $examen = PaciUro::find($this->ex3_id);
+                $message = "Registro Actualizado.";
+            }else{
+                //nuevo
+                $examen = new PaciUro();
+                $examen->pacientes_id = $this->paciente_id;
+                $message = "Registro Guardado.";
+            }
+            $examen->fecha = $this->ex3_fecha;
+            $examen->leu = $this->ex3_leu;
+            $examen->bac = $this->ex3_bac;
+            $examen->detalles = $this->ex3_detalles;
+            $examen->save();
+            $this->limpiarUroanalisis();
+
+        }else{
+            //vacio
+            $tipo = "error";
+            $message = "No puedes Guardar un Registro Vacio.";
+        }
+
+        $this->alert(
+            $tipo,
+            $message
+        );
+    }
+
+    public function editUroanalisis($id)
+    {
+        $this->limpiarUroanalisis();
+        $examen = PaciUro::find($id);
+        $this->ex3_id = $examen->id;
+        $this->ex3_fecha = $examen->fecha;
+        $this->ex3_leu = $examen->leu;
+        $this->ex3_bac = $examen->bac;
+        $this->ex3_detalles = $examen->detalles;
+    }
+
+    public function destroyUroanalisis($id)
+    {
+        $this->ex3_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedUroanalisis',
+        ]);
+    }
+
+    public function confirmedUroanalisis()
+    {
+        $examen = PaciUro::find($this->ex3_id);
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $examen->delete();
+            $this->limpiarUroanalisis();
+            $this->alert(
+                'success',
+                'Registro Eliminado.'
+            );
+        }
+    }
 
 
 
