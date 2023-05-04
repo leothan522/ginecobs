@@ -9,6 +9,7 @@ use App\Models\Laboratorio2;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
 use App\Models\PaciUro;
+use App\Models\PaciUrocultivo;
 use App\Models\PaciVacuna;
 use App\Models\Peso;
 use App\Models\Tipaje;
@@ -25,7 +26,8 @@ class ControlComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1', 'confirmedLaboratorio2', 'confirmedUroanalisis'
+        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1', 'confirmedLaboratorio2', 'confirmedUroanalisis',
+        'confirmedUrocultivos'
     ];
 
     public $table = "control", $form, $title_agregar = "Agregar";
@@ -38,6 +40,7 @@ class ControlComponent extends Component
     public $ex2_fecha, $ex2_hiv, $ex2_vdrl, $ex2_anticore, $ex2_tgo, $ex2_tpg, $ex2_ldh, $ex2_igm, $ex2_igg, $ex2_tsh, $ex2_t4,
             $ex2_id;
     public $ex3_fecha, $ex3_leu, $ex3_bac, $ex3_detalles, $ex3_id;
+    public $ex4_fecha, $ex4_detalles, $ex4_id;
 
     public function render()
     {
@@ -50,6 +53,7 @@ class ControlComponent extends Component
         $laboratorio1 = Laboratorio1::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         $laboratorio2 = Laboratorio2::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         $uroanalisis = PaciUro::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->get();
+        $urocultivos = PaciUrocultivo::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->get();
         return view('livewire.dashboard.control-component')
             ->with('listarPacientes', $pacientes)
             ->with('listarPersonales', $personales)
@@ -60,6 +64,7 @@ class ControlComponent extends Component
             ->with('listarLaboratorio1', $laboratorio1)
             ->with('listarLaboratorio2', $laboratorio2)
             ->with('listarUroanalisis', $uroanalisis)
+            ->with('listarUrocultivos', $urocultivos)
             ;
     }
 
@@ -696,6 +701,110 @@ class ControlComponent extends Component
             );
         }
     }
+
+
+    // *********************************************** UROCULTIVO *******************************************************************
+
+    public function limpiarUrocultivos()
+    {
+        $this->reset([
+            'ex4_fecha', 'ex4_detalles', 'ex4_id'
+        ]);
+    }
+
+    public function saveUrocultivos()
+    {
+        $rules = [
+            'ex4_fecha' =>  ['required', Rule::unique('pacientes_urocultivos', 'fecha')->where(function ($query) {
+                return $query->where('pacientes_id', $this->paciente_id);
+            })->ignore($this->ex4_id)],
+        ];
+        $messages = [
+            'ex4_fecha.required'    =>  'El campo fecha es obligatorio.',
+            'ex4_fecha.unique'    =>  'El campo fecha ya ha sido registrado.'
+        ];
+        $this->validate($rules, $messages);
+        if ($this->ex4_detalles){
+
+            //procesar
+            $tipo = "success";
+            if ($this->ex4_id){
+                //editar
+                $examen = PaciUrocultivo::find($this->ex4_id);
+                $message = "Registro Actualizado.";
+            }else{
+                //nuevo
+                $examen = new PaciUrocultivo();
+                $examen->pacientes_id = $this->paciente_id;
+                $message = "Registro Guardado.";
+            }
+            $examen->fecha = $this->ex4_fecha;
+            $examen->detalles = $this->ex4_detalles;
+            $examen->save();
+            $this->limpiarUrocultivos();
+
+        }else{
+            //vacio
+            $tipo = "error";
+            $message = "No puedes Guardar un Registro Vacio.";
+        }
+
+        $this->alert(
+            $tipo,
+            $message
+        );
+    }
+
+    public function editUrocultivos($id)
+    {
+        $this->limpiarUrocultivos();
+        $examen = PaciUrocultivo::find($id);
+        $this->ex4_id = $examen->id;
+        $this->ex4_fecha = $examen->fecha;
+        $this->ex4_detalles = $examen->detalles;
+    }
+
+    public function destroyUrocultivos($id)
+    {
+        $this->ex4_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedUrocultivos',
+        ]);
+    }
+
+    public function confirmedUrocultivos()
+    {
+        $examen = PaciUrocultivo::find($this->ex4_id);
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $examen->delete();
+            $this->limpiarUrocultivos();
+            $this->alert(
+                'success',
+                'Registro Eliminado.'
+            );
+        }
+    }
+
+
 
 
 
