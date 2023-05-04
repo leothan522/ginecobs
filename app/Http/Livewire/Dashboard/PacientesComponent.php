@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Dashboard;
 
 use App\Models\Antecedente;
+use App\Models\Control;
 use App\Models\Ginecostetrico;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
@@ -129,15 +130,24 @@ class PacientesComponent extends Component
         $paciente->direccion = $this->direccion;
         $paciente->fur = $this->fur;
         $paciente->fpp = $this->fpp;
-        $paciente->gestas = $this->gestas;
-        $paciente->partos = $this->partos;
-        $paciente->cesarias = $this->cesarias;
-        $paciente->abortos = $this->abortos;
+        if (is_numeric($this->gestas)){
+            $paciente->gestas = $this->gestas;
+        }
+        if (is_numeric($this->partos)){
+            $paciente->partos = $this->partos;
+        }
+        if (is_numeric($this->cesarias)){
+            $paciente->cesarias = $this->cesarias;
+        }
+        if (is_numeric($this->abortos)){
+            $paciente->abortos = $this->abortos;
+        }
         $paciente->grupo = $this->grupo;
-
         $paciente->save();
         $this->showPacientes($paciente->id);
-        $this->btnPeso();
+        if ($this->new_paciente){
+            $this->btnPeso();
+        }
         $this->alert(
             'success',
             'Guardado.'
@@ -265,11 +275,14 @@ class PacientesComponent extends Component
     public function savePeso()
     {
         $rules = [
-            'peso_fecha'    => 'required',
+            'peso_fecha'    => ['required', Rule::unique('pacientes_peso', 'fecha')->where(function ($query) {
+                return $query->where('pacientes_id', $this->paciente_id);
+            })->ignore($this->peso_id)],
             'peso_kg'    => 'required|numeric|gte:0|max:1000'
         ];
         $messages = [
             'peso_fecha.required' => 'El campo Fecha es obligatorio.',
+            'peso_fecha.unique' => 'El campo fecha ya ha sido registrado.',
         ];
         $this->validate($rules, $messages);
         if (is_null($this->peso_id)){
@@ -311,12 +324,31 @@ class PacientesComponent extends Component
     public function destroyPeso($id)
     {
         $peso = Peso::find($id);
-        $peso->delete();
-        $this->btnPeso();
-        $this->alert(
-            'success',
-            'Peso Eliminado.'
-        );
+        $vinculado = false;
+
+        $control = Control::where('peso_id', $peso->id)->first();
+        if ($control){
+            $vinculado = true;
+        }
+
+        if ($vinculado){
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        }else{
+            $peso->delete();
+            $this->btnPeso();
+            $this->alert(
+                'success',
+                'Peso Eliminado.'
+            );
+        }
     }
 
     // ************************************* ANTECEDENTES *******************************************************************

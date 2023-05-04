@@ -27,7 +27,7 @@
 
         <!-- Right -->
             <button type="button" class="btn btn-default btn-sm float-right ml-3 mr-1"
-                    data-toggle="modal" data-target="#modal-form">
+                    data-toggle="modal" data-target="#modal-form" @if(!$paciente_id) disabled @endif>
                 <i class="fas fa-plus-circle"></i> Agregar
             </button>
             <button type="button" class="btn btn-default btn-sm float-right ml-1 mr-1" wire:click="btnExamenes(1)"

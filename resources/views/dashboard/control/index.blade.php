@@ -27,7 +27,7 @@
 @endsection
 
 @section('right-sidebar')
-    {{--@include('dashboard.pacientes.right-sidebar')--}}
+    @include('dashboard.control.right-sidebar')
 @endsection
 
 @section('footer')

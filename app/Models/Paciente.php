@@ -52,6 +52,11 @@ class Paciente extends Model
         return $this->hasMany(PaciGine::class, 'pacientes_id', 'id');
     }
 
+    public function control()
+    {
+        return $this->hasMany(Control::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

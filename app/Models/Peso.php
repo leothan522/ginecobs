@@ -20,4 +20,9 @@ class Peso extends Model
         return $this->belongsTo(Paciente::class, 'pacientes_id', 'id');
     }
 
+    public function control()
+    {
+        return $this->hasOne(Control::class, 'peso_id', 'id');
+    }
+
 }

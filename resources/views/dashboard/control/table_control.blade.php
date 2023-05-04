@@ -1,10 +1,10 @@
-<div class="col-12 table-responsive">
+<div class="col-12 table-responsive" xmlns:wire="http://www.w3.org/1999/xhtml">
     <table class="table table-striped table-bordered">
         <thead>
         <tr>
-            <th>FECHA</th>
+            <th class="text-center">FECHA</th>
             <th>EDAD GESTACIONAL</th>
-            <th>PESO</th>
+            <th class="text-right">Peso KG.</th>
             <th>TA</th>
             <th>AU</th>
             <th>PRES</th>
@@ -17,35 +17,48 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>24/02/2023</td>
-            <td>9 meses</td>
-            <td>78,00 kg</td>
-            <td>TA</td>
-            <td>AU</td>
-            <td>AUPRES</td>
-            <td>FCF</td>
-            <td>MOV FETALES</td>
-            <td>DU</td>
-            <td>EDEMA</td>
-            <td>FIebre, Dolor de cabeza</td>
-            <td>
-                <div class="btn-group">
+        @foreach($listarControl as $control)
+            <tr>
+                <td>{{ fecha($control->fecha) }}</td>
+                <td>{{ $control->edad_gestacional }}s</td>
+                <td class="text-right">
+                    @if($control->peso_id)
+                        {{ formatoMillares($control->peso->peso, 3) }}
+                    @endif
+                </td>
+                <td>{{ $control->ta }}</td>
+                <td>{{ $control->au }}</td>
+                <td>{{ $control->pres }}</td>
+                <td>{{ $control->fcf }}</td>
+                <td>{{ $control->mov_fetales }}</td>
+                <td>{{ $control->du }}</td>
+                <td>{{ $control->edema }}</td>
+                <td>{{ $control->sintomas }}</td>
+                <td>
+                    <div class="btn-group">
 
-                    <button type="button" class="btn btn-primary btn-sm"
-                            data-toggle="modal" data-target="#modal-form"
-                        {{--@if(!comprobarPermisos('paciante.edit')) disabled @endif--}} >
-                        <i class="fas fa-edit"></i>
-                    </button>
+                        <button type="button" class="btn btn-primary btn-sm" wire:click="editControl({{ $control->id }})"
+                                data-toggle="modal" data-target="#modal-form"
+                            {{--@if(!comprobarPermisos('paciante.edit')) disabled @endif--}} >
+                            <i class="fas fa-edit"></i>
+                        </button>
 
-                    <button type="button" class="btn btn-primary btn-sm"
-                        {{--@if(/*!comprobarPermisos('paciante.destroy') ||*/ !$antecedente->pa_id) disabled @endif--}} >
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                        <button type="button" class="btn btn-primary btn-sm" wire:click="destroyControl({{ $control->id }})"
+                            @if(!comprobarPermisos()) disabled @endif >
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
 
-                </div>
-            </td>
-        </tr>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
 </div>
+
+<div class="col-12">
+    <ul class="pagination pagination-sm float-right pt-1">
+        {{ $listarControl->links() }}
+    </ul>
+</div>
+

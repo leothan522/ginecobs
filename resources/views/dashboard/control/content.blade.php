@@ -26,7 +26,7 @@
             @endif
 
         <!-- Right -->
-            <button type="button" class="btn btn-default btn-sm float-right ml-3 mr-1"
+            <button type="button" class="btn btn-default btn-sm float-right ml-3 mr-1" wire:click="btnAgregar"
                     data-toggle="modal" data-target="#modal-form" @if(!$paciente_id || $table == "examenes_3") disabled @endif>
                 <i class="fas fa-plus-circle"></i> Agregar
             </button>
@@ -58,12 +58,5 @@
     @include('dashboard.control.modal_form')
 
     {!! verSpinner() !!}
-    {{--<div class="overlay-wrapper" wire:loading wire:target="empresa_id, setEstatus, show">
-        <div class="overlay">
-            <div class="spinner-border text-navy" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div>
-    </div>--}}
 
 </div>
