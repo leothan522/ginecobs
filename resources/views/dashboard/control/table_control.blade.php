@@ -4,7 +4,7 @@
         <tr>
             <th class="text-center">FECHA</th>
             <th>EDAD GESTACIONAL</th>
-            <th class="text-right">Peso KG.</th>
+            <th class="text-right">PESO KG.</th>
             <th>TA</th>
             <th>AU</th>
             <th>PRES</th>
@@ -19,7 +19,7 @@
         <tbody>
         @foreach($listarControl as $control)
             <tr>
-                <td>{{ fecha($control->fecha) }}</td>
+                <td class="text-center">{{ fecha($control->fecha) }}</td>
                 <td>{{ $control->edad_gestacional }}s</td>
                 <td class="text-right">
                     @if($control->peso_id)

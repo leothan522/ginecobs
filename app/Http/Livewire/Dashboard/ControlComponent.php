@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Dashboard;
 
 use App\Models\Antecedente;
 use App\Models\Control;
+use App\Models\Laboratorio1;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
 use App\Models\PaciVacuna;
@@ -22,7 +23,7 @@ class ControlComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'setPacienteActivo', 'confirmedControl'
+        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1'
     ];
 
     public $table = "control", $form, $title_agregar = "Agregar";
@@ -30,6 +31,8 @@ class ControlComponent extends Component
         $cesarea, $abortos, $madre, $padre, $sensibilidad, $grupo;
     public $control_fecha, $control_edad, $control_peso, $control_ta, $control_au, $control_pres, $control_fcf, $contol_mov,
         $control_du, $control_edema, $control_sintomas, $control_observaciones, $control_id;
+    public $ex1_fecha, $ex1_hb, $ex1_leuco, $ex1_plaqueta, $ex1_glicemia, $ex1_urea, $ex1_crea, $ex1_ac, $ex1_tp, $ex1_tpt,
+            $ex1_id;
 
     public function render()
     {
@@ -38,7 +41,8 @@ class ControlComponent extends Component
         $otros = $this->getAntecedentes('otros');
         $familiares = $this->getAntecedentes('familiares');
         $vacunas = $this->getAntecedentes('vacunas');
-        $control = Control::where('pacientes_id', $this->paciente_id)->paginate(30);
+        $control = Control::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
+        $laboratorio1 = Laboratorio1::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         return view('livewire.dashboard.control-component')
             ->with('listarPacientes', $pacientes)
             ->with('listarPersonales', $personales)
@@ -46,6 +50,7 @@ class ControlComponent extends Component
             ->with('listarFamiliares', $familiares)
             ->with('listarVacunas', $vacunas)
             ->with('listarControl', $control)
+            ->with('listarLaboratorio1', $laboratorio1)
             ;
     }
 
@@ -164,8 +169,14 @@ class ControlComponent extends Component
             default:
                 $this->limpiarControl();
                 $this->title_agregar = "Agregar Control";
-                $this->control_fecha = date("Y-m-d");
                 $this->form = "control";
+                $this->control_fecha = date("Y-m-d");
+                break;
+            case "examenes_1":
+                $this->limpiarLaboratorio1();
+                $this->title_agregar = "Agregar Laboratorio 1";
+                $this->form = "examen_1";
+                $this->ex1_fecha = date("Y-m-d");
                 break;
         }
     }
@@ -173,6 +184,7 @@ class ControlComponent extends Component
     public function btnCerrarModal()
     {
         $this->limpiarControl();
+        $this->limpiarLaboratorio1();
     }
 
     // *********************************************** CONTROL *******************************************************************
@@ -195,6 +207,7 @@ class ControlComponent extends Component
         ];
         $messages = [
             'control_fecha.required'    =>  'El campo fecha es obligatorio.',
+            'control_fecha.unique'    =>  ' El campo fecha ya ha sido registrado.',
             'control_peso.numeric'    =>  'peso debe ser numérico.',
             'control_peso.gte'    =>  'El campo peso debe ser como mínimo 0.',
             'control_peso.max'    =>  'peso no debe ser mayor que 1000.'
@@ -243,7 +256,7 @@ class ControlComponent extends Component
             $control->sintomas = $this->control_sintomas;
             $control->observaciones = $this->control_observaciones;
             $control->save();
-
+            $this->editControl($control->id);
         }else{
             //vacio
             $tipo = "error";
@@ -321,6 +334,125 @@ class ControlComponent extends Component
 
     // *********************************************** LABORATORIO 1 *******************************************************************
 
+    public function limpiarLaboratorio1()
+    {
+        $this->reset([
+            'ex1_fecha', 'ex1_hb', 'ex1_leuco', 'ex1_plaqueta', 'ex1_glicemia', 'ex1_urea', 'ex1_crea', 'ex1_ac', 'ex1_tp',
+            'ex1_tpt', 'ex1_id'
+        ]);
+    }
+
+    public function saveLaboratorio1()
+    {
+        $rules = [
+            'ex1_fecha' =>  ['required', Rule::unique('pacientes_laboratorio_1', 'fecha')->where(function ($query) {
+                return $query->where('pacientes_id', $this->paciente_id);
+            })->ignore($this->ex1_id)],
+        ];
+        $messages = [
+            'ex1_fecha.required'    =>  'El campo fecha es obligatorio.',
+            'ex1_fecha.unique'    =>  'El campo fecha ya ha sido registrado.'
+        ];
+        $this->validate($rules, $messages);
+
+        if ($this->ex1_hb || $this->ex1_leuco || $this->ex1_plaqueta || $this->ex1_glicemia || $this->ex1_urea || $this->ex1_crea ||
+            $this->ex1_ac || $this->ex1_tp || $this->ex1_tpt){
+
+            //procesar
+            $tipo = "success";
+            if ($this->ex1_id){
+                //editar
+                $examen = Laboratorio1::find($this->ex1_id);
+                $message = "Registro Actualizado.";
+            }else{
+                //nuevo
+                $examen = new Laboratorio1();
+                $examen->pacientes_id = $this->paciente_id;
+                $message = "Registro Guardado.";
+            }
+            $examen->fecha = $this->ex1_fecha;
+            $examen->hb = $this->ex1_hb;
+            $examen->leuco = $this->ex1_leuco;
+            $examen->plaqueta = $this->ex1_plaqueta;
+            $examen->glicemia = $this->ex1_glicemia;
+            $examen->urea = $this->ex1_urea;
+            $examen->crea = $this->ex1_crea;
+            $examen->ac_urico = $this->ex1_ac;
+            $examen->tp = $this->ex1_tp;
+            $examen->tpt = $this->ex1_tpt;
+            $examen->save();
+            $this->editLaboratorio1($examen->id);
+        }else{
+            //vacio
+            $tipo = "error";
+            $message = "No puedes Guardar un Registro Vacio.";
+        }
+
+        $this->alert(
+            $tipo,
+            $message
+        );
+
+    }
+
+    public function editLaboratorio1($id)
+    {
+        $this->limpiarLaboratorio1();
+        $examen = Laboratorio1::find($id);
+        $this->ex1_id = $examen->id;
+        $this->ex1_fecha = $examen->fecha;
+        $this->ex1_hb = $examen->hb;
+        $this->ex1_leuco = $examen->leuco;
+        $this->ex1_plaqueta = $examen->plaqueta;
+        $this->ex1_glicemia = $examen->glicemia;
+        $this->ex1_urea = $examen->urea;
+        $this->ex1_crea = $examen->crea;
+        $this->ex1_ac = $examen->ac_urico;
+        $this->ex1_tp = $examen->tp;
+        $this->ex1_tpt = $examen->tpt;
+        $this->title_agregar = "Editar Laboratorio 1";
+        $this->form = "examen_1";
+    }
+
+    public function destroyLaboratorio1($id)
+    {
+        $this->ex1_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedLaboratorio1',
+        ]);
+    }
+
+    public function confirmedLaboratorio1()
+    {
+        $examen = Laboratorio1::find($this->ex1_id);
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $examen->delete();
+            $this->limpiarLaboratorio1();
+            $this->alert(
+                'success',
+                'Registro Eliminado.'
+            );
+        }
+    }
 
 
 }
