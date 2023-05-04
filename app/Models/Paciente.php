@@ -62,6 +62,11 @@ class Paciente extends Model
         return $this->hasMany(Laboratorio1::class, 'pacientes_id', 'id');
     }
 
+    public function laboratorio2()
+    {
+        return $this->hasMany(Laboratorio2::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

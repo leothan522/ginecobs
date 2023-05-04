@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Dashboard;
 use App\Models\Antecedente;
 use App\Models\Control;
 use App\Models\Laboratorio1;
+use App\Models\Laboratorio2;
 use App\Models\PaciAnte;
 use App\Models\Paciente;
 use App\Models\PaciVacuna;
@@ -23,7 +24,7 @@ class ControlComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1'
+        'setPacienteActivo', 'confirmedControl', 'confirmedLaboratorio1', 'confirmedLaboratorio2'
     ];
 
     public $table = "control", $form, $title_agregar = "Agregar";
@@ -33,6 +34,8 @@ class ControlComponent extends Component
         $control_du, $control_edema, $control_sintomas, $control_observaciones, $control_id;
     public $ex1_fecha, $ex1_hb, $ex1_leuco, $ex1_plaqueta, $ex1_glicemia, $ex1_urea, $ex1_crea, $ex1_ac, $ex1_tp, $ex1_tpt,
             $ex1_id;
+    public $ex2_fecha, $ex2_hiv, $ex2_vdrl, $ex2_anticore, $ex2_tgo, $ex2_tpg, $ex2_ldh, $ex2_igm, $ex2_igg, $ex2_tsh, $ex2_t4,
+            $ex2_id;
 
     public function render()
     {
@@ -43,6 +46,7 @@ class ControlComponent extends Component
         $vacunas = $this->getAntecedentes('vacunas');
         $control = Control::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         $laboratorio1 = Laboratorio1::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
+        $laboratorio2 = Laboratorio2::where('pacientes_id', $this->paciente_id)->orderBy('fecha', 'ASC')->paginate(30);
         return view('livewire.dashboard.control-component')
             ->with('listarPacientes', $pacientes)
             ->with('listarPersonales', $personales)
@@ -51,6 +55,7 @@ class ControlComponent extends Component
             ->with('listarVacunas', $vacunas)
             ->with('listarControl', $control)
             ->with('listarLaboratorio1', $laboratorio1)
+            ->with('listarLaboratorio2', $laboratorio2)
             ;
     }
 
@@ -178,6 +183,12 @@ class ControlComponent extends Component
                 $this->form = "examen_1";
                 $this->ex1_fecha = date("Y-m-d");
                 break;
+            case "examenes_2":
+                $this->limpiarLaboratorio2();
+                $this->title_agregar = "Agregar Laboratorio 2";
+                $this->form = "examen_2";
+                $this->ex2_fecha = date('Y-m-d');
+                break;
         }
     }
 
@@ -185,6 +196,7 @@ class ControlComponent extends Component
     {
         $this->limpiarControl();
         $this->limpiarLaboratorio1();
+        $this->limpiarLaboratorio2();
     }
 
     // *********************************************** CONTROL *******************************************************************
@@ -453,6 +465,131 @@ class ControlComponent extends Component
             );
         }
     }
+
+    // *********************************************** LABORATORIO 2 *******************************************************************
+
+    public function limpiarLaboratorio2()
+    {
+        $this->reset([
+                'ex2_fecha', 'ex2_hiv', 'ex2_vdrl', 'ex2_anticore', 'ex2_tgo', 'ex2_tpg', 'ex2_ldh', 'ex2_igm', 'ex2_igg',
+                'ex2_tsh', 'ex2_t4', 'ex2_id'
+            ]);
+    }
+
+    public function saveLaboratorio2()
+    {
+        $rules = [
+            'ex2_fecha' =>  ['required', Rule::unique('pacientes_laboratorio_2', 'fecha')->where(function ($query) {
+                return $query->where('pacientes_id', $this->paciente_id);
+            })->ignore($this->ex2_id)],
+        ];
+        $messages = [
+            'ex2_fecha.required'    =>  'El campo fecha es obligatorio.',
+            'ex2_fecha.unique'    =>  'El campo fecha ya ha sido registrado.'
+        ];
+        $this->validate($rules, $messages);
+        if ($this->ex2_hiv || $this->ex2_vdrl || $this->ex2_anticore || $this->ex2_tgo || $this->ex2_tpg || $this->ex2_ldh ||
+            $this->ex2_igm || $this->ex2_igg || $this->ex2_tsh || $this->ex2_t4){
+
+            //procesar
+            $tipo = "success";
+            if ($this->ex2_id){
+                //editar
+                $examen = Laboratorio2::find($this->ex2_id);
+                $message = "Registro Actualizado.";
+            }else{
+                //nuevo
+                $examen = new Laboratorio2();
+                $examen->pacientes_id = $this->paciente_id;
+                $message = "Registro Guardado.";
+            }
+            $examen->fecha = $this->ex2_fecha;
+            $examen->hiv = $this->ex2_hiv;
+            $examen->vdrl = $this->ex2_vdrl;
+            $examen->anticore = $this->ex2_anticore;
+            $examen->tgo = $this->ex2_tgo;
+            $examen->tpg = $this->ex2_tpg;
+            $examen->ldh = $this->ex2_ldh;
+            $examen->toxo_igm = $this->ex2_igm;
+            $examen->toxo_igg = $this->ex2_igg;
+            $examen->tsh = $this->ex2_tsh;
+            $examen->t4 = $this->ex2_t4;
+            $examen->save();
+            $this->editLaboratorio2($examen->id);
+        }else{
+            //vacio
+            $tipo = "error";
+            $message = "No puedes Guardar un Registro Vacio.";
+        }
+
+        $this->alert(
+            $tipo,
+            $message
+        );
+    }
+
+    public function editLaboratorio2($id)
+    {
+        $this->limpiarLaboratorio2();
+        $examen = Laboratorio2::find($id);
+        $this->ex2_id = $examen->id;
+        $this->ex2_fecha = $examen->fecha;
+        $this->ex2_hiv = $examen->hiv;
+        $this->ex2_vdrl = $examen->vdrl;
+        $this->ex2_anticore = $examen->anticore;
+        $this->ex2_tgo = $examen->tgo;
+        $this->ex2_tpg = $examen->tpg;
+        $this->ex2_ldh = $examen->ldh;
+        $this->ex2_igm = $examen->toxo_igm;
+        $this->ex2_igg = $examen->toxo_igg;
+        $this->ex2_tsh = $examen->tsh;
+        $this->ex2_t4 = $examen->t4;
+        $this->title_agregar = "Editar Laboratorio 2";
+        $this->form = "examen_2";
+    }
+
+    public function destroyLaboratorio2($id)
+    {
+        $this->ex2_id = $id;
+        $this->confirm('¿Estas seguro?', [
+            'toast' => false,
+            'position' => 'center',
+            'showConfirmButton' => true,
+            'confirmButtonText' =>  '¡Sí, bórralo!',
+            'text' =>  '¡No podrás revertir esto!',
+            'cancelButtonText' => 'No',
+            'onConfirmed' => 'confirmedLaboratorio2',
+        ]);
+    }
+
+    public function confirmedLaboratorio2()
+    {
+        $examen = Laboratorio2::find($this->ex2_id);
+        //codigo para verificar si realmente se puede borrar, dejar false si no se requiere validacion
+        $vinculado = false;
+
+        if ($vinculado) {
+            $this->alert('warning', '¡No se puede Borrar!', [
+                'position' => 'center',
+                'timer' => '',
+                'toast' => false,
+                'text' => 'El registro que intenta borrar ya se encuentra vinculado con otros procesos.',
+                'showConfirmButton' => true,
+                'onConfirmed' => '',
+                'confirmButtonText' => 'OK',
+            ]);
+        } else {
+            $examen->delete();
+            $this->limpiarLaboratorio2();
+            $this->alert(
+                'success',
+                'Registro Eliminado.'
+            );
+        }
+    }
+
+
+
 
 
 }

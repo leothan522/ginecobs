@@ -1,4 +1,4 @@
-<div class="col-12 table-responsive">
+<div class="col-12 table-responsive" xmlns:wire="http://www.w3.org/1999/xhtml">
     <table class="table table-striped table-bordered">
         <thead>
         <tr>
@@ -17,35 +17,37 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>24/02/2023</td>
-            <td>9 meses</td>
-            <td>78,00 kg</td>
-            <td>TA</td>
-            <td>AU</td>
-            <td>AUPRES</td>
-            <td>FCF</td>
-            <td>MOV FETALES</td>
-            <td>DU</td>
-            <td>EDEMA</td>
-            <td>EDEMA</td>
-            <td>
-                <div class="btn-group">
+        @foreach($listarLaboratorio2 as $examen)
+            <tr>
+                <td class="text-center">{{ fecha($examen->fecha) }}</td>
+                <td>{{ $examen->hiv }}</td>
+                <td>{{ $examen->vdrl }}</td>
+                <td>{{ $examen->anticore }}</td>
+                <td>{{ $examen->tgo }}</td>
+                <td>{{ $examen->tpg }}</td>
+                <td>{{ $examen->ldh }}</td>
+                <td>{{ $examen->toxo_igm }}</td>
+                <td>{{ $examen->toxo_igg }}</td>
+                <td>{{ $examen->tsh }}</td>
+                <td>{{ $examen->t4 }}</td>
+                <td>
+                    <div class="btn-group">
 
-                    <button type="button" class="btn btn-primary btn-sm"
-                            data-toggle="modal" data-target="#modal-form"
-                        {{--@if(!comprobarPermisos('paciante.edit')) disabled @endif--}} >
-                        <i class="fas fa-edit"></i>
-                    </button>
+                        <button type="button" class="btn btn-primary btn-sm" wire:click="editLaboratorio2({{ $examen->id }})"
+                                data-toggle="modal" data-target="#modal-form"
+                            {{--@if(!comprobarPermisos('paciante.edit')) disabled @endif--}} >
+                            <i class="fas fa-edit"></i>
+                        </button>
 
-                    <button type="button" class="btn btn-primary btn-sm"
-                        {{--@if(/*!comprobarPermisos('paciante.destroy') ||*/ !$antecedente->pa_id) disabled @endif--}} >
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                        <button type="button" class="btn btn-primary btn-sm" wire:click="destroyLaboratorio2({{ $examen->id }})"
+                                @if(!comprobarPermisos()) disabled @endif >
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
 
-                </div>
-            </td>
-        </tr>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
 </div>
