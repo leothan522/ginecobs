@@ -72,6 +72,16 @@ class Paciente extends Model
         return $this->hasMany(PaciUro::class, 'pacientes_id', 'id');
     }
 
+    public function historia()
+    {
+        return $this->hasMany(Historia::class, 'pacientes_id', 'id');
+    }
+
+    public function tabla()
+    {
+        return $this->hasMany(PaciTabla::class, 'pacientes_id', 'id');
+    }
+
     public function scopeBuscar($query, $keyword)
     {
         return $query->where('nombre', 'LIKE', "%$keyword%")

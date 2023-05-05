@@ -20,7 +20,7 @@ class Laboratorio1 extends Model
         'crea',
         'ac_urico',
         'tp',
-        'tpt',
+        'tpt'
     ];
 
     public function paciente()

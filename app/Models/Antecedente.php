@@ -13,7 +13,7 @@ class Antecedente extends Model
         'nombre',
         'familiares',
         'personales',
-        'otros',
+        'otros'
     ];
 
     public function pacientes()

@@ -5,24 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Control extends Model
+class Historia extends Model
 {
     use HasFactory;
-    protected $table = "pacientes_control";
+    protected $table = "pacientes_historia";
     protected $fillable = [
         'pacientes_id',
         'fecha',
-        'edad_gestacional',
+        'mc',
         'peso_id',
         'ta',
-        'au',
-        'pres',
-        'fcf',
-        'mov_fetales',
-        'du',
-        'edema',
-        'sintomas',
-        'observaciones'
+        'mama',
+        'cue',
+        'zt',
+        'cabeza',
+        'cuello',
+        'torax',
+        'abdomen',
+        'extremidades',
+        'snc',
+        'genitales',
+        'observacion',
+        'plan'
     ];
 
     public function paciente()
@@ -34,5 +38,4 @@ class Control extends Model
     {
         return $this->belongsTo(Peso::class, 'peso_id', 'id');
     }
-
 }

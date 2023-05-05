@@ -21,7 +21,7 @@ class Laboratorio2 extends Model
         'toxo_igm',
         'toxo_igg',
         'tsh',
-        't4',
+        't4'
     ];
 
     public function paciente()

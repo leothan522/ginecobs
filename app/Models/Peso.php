@@ -25,4 +25,9 @@ class Peso extends Model
         return $this->hasOne(Control::class, 'peso_id', 'id');
     }
 
+    public function historia()
+    {
+        return $this->hasOne(Historia::class, 'peso_id', 'id');
+    }
+
 }

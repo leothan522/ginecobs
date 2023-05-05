@@ -5,23 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PaciGine extends Model
+class PaciTabla extends Model
 {
     use HasFactory;
-    protected $table = "pacientes_ginecostetricos";
+    protected $table = "pacientes_tabla";
     protected $fillable = [
         'pacientes_id',
-        'ginecostetricos_id',
-        'detalles'
+        'year',
+        'semanas',
+        'via',
+        'sexo',
+        'peso'
     ];
 
     public function paciente()
     {
         return $this->belongsTo(Paciente::class, 'pacientes_id', 'id');
-    }
-
-    public function ginecostetrico()
-    {
-        return $this->belongsTo(Ginecostetrico::class, 'ginecostetricos_id', 'id');
     }
 }
